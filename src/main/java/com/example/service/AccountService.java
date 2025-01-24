@@ -10,21 +10,14 @@ import org.springframework.stereotype.Service;
 
 import javax.security.sasl.AuthenticationException;
 
-import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 public class AccountService {
-
     private AccountRepository accountRepository;
 
     @Autowired
     public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
-
-
 
     public Boolean userExists(int id) {
         return accountRepository.existsById(id);
@@ -33,7 +26,6 @@ public class AccountService {
     public boolean usernameExists(String uName) {
         return accountRepository.existsByUsername(uName);
     }
-
 
     public Account registerUser(Account newUser) throws UsernameConflictException, OperationFailedException{
         String uName = newUser.getUsername();
@@ -46,7 +38,6 @@ public class AccountService {
         } else throw new OperationFailedException("Registration Unsuccessful");
     }
 
-
     public Account loginUser(Account user) throws AuthenticationException{
         Account acct = accountRepository.findByUsername(user.getUsername());
         if (acct != null) {
@@ -54,11 +45,5 @@ public class AccountService {
         }
         throw new AuthenticationException("Login Unsuccessful");
     }
-
-
-
-
-
-
 
 }

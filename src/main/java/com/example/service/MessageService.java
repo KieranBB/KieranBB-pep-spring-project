@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @Service
 public class MessageService {
-
     private MessageRepository messageRepository;
     private AccountService accountService;
 
@@ -35,7 +34,6 @@ public class MessageService {
             return messageRepository.save(buffer);
         } else throw new OperationFailedException("Message Creation Unsuccessful");
     }
-
 
     public List<Message> getMessages() {
         return messageRepository.findAll();
@@ -71,12 +69,8 @@ public class MessageService {
         } else throw new OperationFailedException("Message Update Unsuccessful");
     }
 
-
-
     public List<Message> getMessagesByUser(int acctId) {
         return messageRepository.findByPostedBy(acctId);
     }
-
-
 
 }

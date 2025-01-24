@@ -33,7 +33,6 @@ public class SocialMediaController {
         this.accountService = accountService;
         this.messageService = messageService;
     }
-    
 
     @PostMapping("/register")
     @Transactional
@@ -68,7 +67,7 @@ public class SocialMediaController {
             return ResponseEntity.ok(1);
         } else return ResponseEntity.ok().build();
     }
-//
+
     @PatchMapping("messages/{messageId}")
     public int updateMessageById(@PathVariable("messageId") int id, @RequestBody Message newMssg) throws OperationFailedException{
         return messageService.updateMessageById(id, newMssg);
@@ -78,8 +77,6 @@ public class SocialMediaController {
     public List<Message> getMessagesByUser(@PathVariable("accountId") int acctId) {
         return messageService.getMessagesByUser(acctId);
     }
-
-
     
     @ExceptionHandler(UsernameConflictException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -98,6 +95,5 @@ public class SocialMediaController {
     public String handleOperationFailedException(OperationFailedException ex) {
         return ex.getMessage();
     }
-
 
 }
