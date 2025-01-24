@@ -2,12 +2,15 @@ package com.example.controller;
 
 import com.example.service.*;
 import com.example.entity.*;
-
+import com.example.exception.OperationFailedException;
+import com.example.exception.UsernameConflictException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import javax.security.sasl.AuthenticationException;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -34,36 +37,24 @@ public class SocialMediaController {
 
     @PostMapping("/register")
     @Transactional
-    public ResponseEntity registerUser(@RequestBody Account acct) {
-        if (!accountService.usernameExists(acct.getUsername())) {
-            Account res = accountService.registerUser(acct);
-            if (res != null) {
-                return ResponseEntity.ok(res);
-            } else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration Unsuccessful");
-        } else return ResponseEntity.status(HttpStatus.CONFLICT).body("Username Already Taken");
+    public Account registerUser(@RequestBody Account acct) throws UsernameConflictException, OperationFailedException{
+        return accountService.registerUser(acct);
     }
 
     @PostMapping("/login")
-    public ResponseEntity loginUser(@RequestBody Account acct) {
-        Account res = accountService.loginUser(acct);
-        if (res != null) {
-            return ResponseEntity.ok(res);
-        } else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username or Password Incorrect");
+    public Account loginUser(@RequestBody Account acct) throws AuthenticationException{
+        return accountService.loginUser(acct);
     }
 
     @PostMapping("/messages")
-    public ResponseEntity createMessage(@RequestBody Message mssg) {
-        Message res = messageService.createMessage(mssg);
-        if (res != null) {
-            return ResponseEntity.ok(res);
-        } else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message Creation Unsuccessful");
+    public Message createMessage(@RequestBody Message mssg) throws OperationFailedException{
+        return messageService.createMessage(mssg);
     }
 
     @GetMapping("/messages")
     public List<Message> getMessages() {
         return messageService.getMessages();
     }
-
 
     @GetMapping("/messages/{messageId}")
     public Message getMessageById(@PathVariable("messageId") int id) {
@@ -77,18 +68,35 @@ public class SocialMediaController {
             return ResponseEntity.ok(1);
         } else return ResponseEntity.ok().build();
     }
-
+//
     @PatchMapping("messages/{messageId}")
-    public ResponseEntity updateMessageById(@PathVariable("messageId") int id, @RequestBody Message newMssg) {
-        int res = messageService.updateMessageById(id, newMssg);
-        if (res == 1) {
-            return ResponseEntity.ok(1);
-        } else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Message Update Unsuccessful");
+    public int updateMessageById(@PathVariable("messageId") int id, @RequestBody Message newMssg) throws OperationFailedException{
+        return messageService.updateMessageById(id, newMssg);
     }
 
     @GetMapping("accounts/{accountId}/messages")
     public List<Message> getMessagesByUser(@PathVariable("accountId") int acctId) {
         return messageService.getMessagesByUser(acctId);
+    }
+
+
+    
+    @ExceptionHandler(UsernameConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public String handleUsernameConflictException(UsernameConflictException ex) {
+        return ex.getMessage();
+    }
+    
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public String handleAuthenticationException(AuthenticationException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(OperationFailedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleOperationFailedException(OperationFailedException ex) {
+        return ex.getMessage();
     }
 
 

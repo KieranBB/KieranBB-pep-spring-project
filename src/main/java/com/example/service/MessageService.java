@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.repository.MessageRepository;
 import com.example.entity.Message;
+import com.example.exception.OperationFailedException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class MessageService {
     }
 
     @Transactional
-    public Message createMessage(Message newMssg) {
+    public Message createMessage(Message newMssg) throws OperationFailedException{
         String mssgTxt = newMssg.getMessageText();
         int pstBy = newMssg.getPostedBy();
         boolean nonBlank = (mssgTxt.strip().length() > 0);
@@ -32,7 +33,7 @@ public class MessageService {
         if (nonBlank && lenGood && usrReal) {
             Message buffer = new Message(pstBy, mssgTxt, newMssg.getTimePostedEpoch());
             return messageRepository.save(buffer);
-        } else return null;
+        } else throw new OperationFailedException("Message Creation Unsuccessful");
     }
 
 
@@ -56,7 +57,7 @@ public class MessageService {
     }
 
     @Transactional
-    public int updateMessageById(int id, Message newMssg) {
+    public int updateMessageById(int id, Message newMssg) throws OperationFailedException{
         Optional<Message> mssgO = messageRepository.findById(id);
         String newTxt = newMssg.getMessageText();
         boolean newNonBlank = (newTxt.strip().length() > 0);
@@ -67,8 +68,7 @@ public class MessageService {
             mssg.setMessageText(newTxt);
             messageRepository.save(mssg);
             return 1;
-        }
-        return 0;
+        } else throw new OperationFailedException("Message Update Unsuccessful");
     }
 
 
